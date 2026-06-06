@@ -1,0 +1,155 @@
+{
+  "_comment": "CompSmith AE script error knowledge base. Categories are injected selectively based on the user request keywords. Add new entries after reproducing and fixing the error in AE.",
+  "_updated": "2026-06",
+  "_version": 1,
+  "_categories": ["colors", "shape_layers", "text_layers", "transform", "effects", "null_guards", "output_format"],
+
+  "colors": {
+    "_keywords": ["color", "solid", "background", "fill", "tint", "teal", "gradient"],
+    "_description": "Color array format rules for AE scripting",
+    "rules": [
+      {
+        "id": "addSolid-rgb-only",
+        "title": "addSolid() takes [R,G,B] only — no alpha",
+        "wrong": "comp.layers.addSolid([0.1, 0.4, 0.45, 1], ...)",
+        "right": "comp.layers.addSolid([0.1, 0.4, 0.45], ...)",
+        "error": "After Effects error: Color Array does not have 3 values.",
+        "note": "AE color arrays for addSolid are always 3-element RGB (0–1 range). Never include alpha as a 4th value.",
+        "source": "session:01.md-2026-06-06"
+      },
+      {
+        "id": "fill-color-rgb-only",
+        "title": "Fill color setValue() takes [R,G,B] — no alpha",
+        "wrong": "fill.property('ADBE Vector Fill Color').setValue([1, 1, 0.8, 1])",
+        "right": "fill.property('ADBE Vector Fill Color').setValue([1, 1, 0.8])",
+        "error": "Possible silent wrong color or type error depending on AE version.",
+        "note": "Shape layer fill color properties also expect 3-element RGB arrays.",
+        "source": "observed-pattern"
+      }
+    ]
+  },
+
+  "shape_layers": {
+    "_keywords": ["shape", "rect", "ellipse", "star", "polygon", "repeater", "trim", "stroke", "fill", "vector", "group"],
+    "_description": "Shape layer creation and property access rules",
+    "rules": [
+      {
+        "id": "repeater-pos-not-position",
+        "title": "Repeater transform property is 'ADBE Vector Repeater Pos' not 'ADBE Vector Repeater Position'",
+        "wrong": "rep.property('ADBE Vector Repeater Transform').property('ADBE Vector Repeater Position')",
+        "right": "var rt=rep.property('ADBE Vector Repeater Transform'); var rp=rt ? rt.property('ADBE Vector Repeater Pos') : null; if(rp) rp.setValue([50,0]);",
+        "error": "Returns null silently or throws — position keyframe is never set.",
+        "note": "The correct internal name is 'Pos', not 'Position'. Always null-guard the result.",
+        "source": "system-prompt-observed"
+      },
+      {
+        "id": "shape-root-null-guard",
+        "title": "Always null-guard ADBE Root Vectors Group before use",
+        "wrong": "var root=sl.property('ADBE Root Vectors Group'); root.addProperty(...);",
+        "right": "var root=sl.property('ADBE Root Vectors Group'); if(!root) return JSON.stringify({success:false,message:'Shape root group not found.'});",
+        "error": "TypeError if root is null on certain layer types.",
+        "note": "Root vectors group can be null if the layer is not a shape layer.",
+        "source": "system-prompt-observed"
+      },
+      {
+        "id": "shape-group-null-guard",
+        "title": "Null-guard addProperty() results for shape groups",
+        "wrong": "var grp=root.addProperty('ADBE Vector Group'); grp.name='Rect 1';",
+        "right": "var grp=root.addProperty('ADBE Vector Group'); if(!grp) return JSON.stringify({success:false,message:'Could not create shape group.'}); grp.name='Rect 1';",
+        "error": "TypeError: Cannot set property 'name' of null",
+        "note": "addProperty() can return null — always guard before accessing the result.",
+        "source": "system-prompt-observed"
+      }
+    ]
+  },
+
+  "text_layers": {
+    "_keywords": ["text", "font", "paragraph", "typeface", "caption", "title", "subtitle", "label"],
+    "_description": "Text layer property access rules",
+    "rules": [
+      {
+        "id": "text-props-null-guard",
+        "title": "Null-guard ADBE Text Properties and ADBE Text Document before access",
+        "wrong": "var srcText=tl.property('ADBE Text Properties').property('ADBE Text Document');",
+        "right": "var txtProps=tl.property('ADBE Text Properties'); if(!txtProps) return JSON.stringify({success:false,message:'Text properties not found.'}); var srcText=txtProps.property('ADBE Text Document'); if(!srcText) return JSON.stringify({success:false,message:'Source text not found.'});",
+        "error": "TypeError on non-text layers or if property chain returns null.",
+        "note": "Chain each property access separately with a null check.",
+        "source": "system-prompt-observed"
+      }
+    ]
+  },
+
+  "transform": {
+    "_keywords": ["position", "scale", "rotation", "opacity", "anchor", "transform", "move", "animate", "keyframe"],
+    "_description": "Transform group property access rules",
+    "rules": [
+      {
+        "id": "transform-group-null-guard",
+        "title": "Null-guard ADBE Transform Group before accessing sub-properties",
+        "wrong": "layer.property('ADBE Transform Group').property('ADBE Position').setValue([960,540]);",
+        "right": "var tr=layer.property('ADBE Transform Group'); if(!tr) return JSON.stringify({success:false,message:'Transform group not found.'}); var pos=tr.property('ADBE Position'); if(pos) pos.setValue([960,540]);",
+        "error": "TypeError if transform group is null (e.g. on certain effect layers).",
+        "note": "Never chain .property() calls without null checks between them.",
+        "source": "system-prompt-observed"
+      }
+    ]
+  },
+
+  "effects": {
+    "_keywords": ["effect", "blur", "glow", "color correction", "particle", "cc ", "plugin", "apply effect"],
+    "_description": "Effect property access rules",
+    "rules": [
+      {
+        "id": "effect-parade-null-guard",
+        "title": "Null-guard ADBE Effect Parade and individual effects before access",
+        "wrong": "var pw=layer.property('ADBE Effect Parade').property('CC Particle World');",
+        "right": "var fx=layer.property('ADBE Effect Parade'); var pw=fx ? fx.property('CC Particle World') : null; if(!pw) return;",
+        "error": "TypeError if effect is not applied or plugin not installed.",
+        "note": "Effects can be missing due to plugins not installed or wrong layer type. Never assume an effect exists.",
+        "source": "system-prompt-observed"
+      },
+      {
+        "id": "canAddProperty-check",
+        "title": "Check canAddProperty() before adding effects that require plugins",
+        "wrong": "fx.addProperty('CC Particle Systems II');",
+        "right": "if(fx.canAddProperty && !fx.canAddProperty('CC Particle Systems II')) return JSON.stringify({success:false,message:'CC Particle Systems II is not installed.'}); var particleEffect=fx.addProperty('CC Particle Systems II');",
+        "error": "Silent failure or crash if plugin not installed.",
+        "note": "Always gate plugin-dependent effects with canAddProperty().",
+        "source": "session:02.md-2026-06-06"
+      }
+    ]
+  },
+
+  "null_guards": {
+    "_keywords": ["property", "layer", "comp", "item", "group", "contents"],
+    "_description": "General null-guard patterns for AE property access",
+    "rules": [
+      {
+        "id": "no-try-catch-for-properties",
+        "title": "Use null-guards not try/catch for property access",
+        "wrong": "var prop=null; try{prop=layer.property('Effects').property('Blur').property('Blurriness');}catch(e){}",
+        "right": "var fx=layer.property('ADBE Effect Parade'); var blur=fx ? fx.property('Blur') : null; var prop=blur ? blur.property('Blurriness') : null; if(prop) prop.setValue(20);",
+        "error": "try/catch swallows useful error info and masks real bugs.",
+        "note": "AE properties return null on incompatible types — check for null rather than catching exceptions.",
+        "source": "system-prompt-observed"
+      }
+    ]
+  },
+
+  "output_format": {
+    "_keywords": ["*"],
+    "_description": "Rules about how the AI must format its code output — always injected",
+    "_always_inject": true,
+    "rules": [
+      {
+        "id": "no-markdown-in-code",
+        "title": "Never use markdown code fences inside the generated script",
+        "wrong": "/* Star Settings */```json\n  var starBirthRate = 0.5;",
+        "right": "/* Star Settings */\n  var starBirthRate = 0.5;",
+        "error": "Markdown backticks inside the code string break JSON.parse() on the response envelope, causing the raw JSON to be displayed instead of the rendered script.",
+        "note": "The code value in the response JSON must be pure JavaScript. No backticks, no markdown fences, no language tags.",
+        "source": "session:02.md-2026-06-06"
+      }
+    ]
+  }
+}
