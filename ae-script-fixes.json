@@ -1,7 +1,7 @@
 {
   "_comment": "CompSmith AE script error knowledge base. Categories are injected selectively based on the user request keywords. Add new entries after reproducing and fixing the error in AE.",
   "_updated": "2026-06",
-  "_version": 4,
+  "_version": 5,
   "_categories": [
     "colors",
     "shape_layers",
@@ -26,16 +26,16 @@
     "rules": [
       {
         "id": "addSolid-rgb-only",
-        "title": "addSolid() takes [R,G,B] only ÃÂ¢ÃÂÃÂ no alpha",
+        "title": "addSolid() takes [R,G,B] only ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ no alpha",
         "wrong": "comp.layers.addSolid([0.1, 0.4, 0.45, 1], ...)",
         "right": "comp.layers.addSolid([0.1, 0.4, 0.45], ...)",
         "error": "After Effects error: Color Array does not have 3 values.",
-        "note": "AE color arrays for addSolid are always 3-element RGB (0ÃÂ¢ÃÂÃÂ1 range). Never include alpha as a 4th value.",
+        "note": "AE color arrays for addSolid are always 3-element RGB (0ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ1 range). Never include alpha as a 4th value.",
         "source": "session:01.md-2026-06-06"
       },
       {
         "id": "fill-color-rgb-only",
-        "title": "Fill color setValue() takes [R,G,B] ÃÂ¢ÃÂÃÂ no alpha",
+        "title": "Fill color setValue() takes [R,G,B] ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ no alpha",
         "wrong": "fill.property('ADBE Vector Fill Color').setValue([1, 1, 0.8, 1])",
         "right": "fill.property('ADBE Vector Fill Color').setValue([1, 1, 0.8])",
         "error": "Possible silent wrong color or type error depending on AE version.",
@@ -65,7 +65,7 @@
         "title": "Repeater transform property is 'ADBE Vector Repeater Pos' not 'ADBE Vector Repeater Position'",
         "wrong": "rep.property('ADBE Vector Repeater Transform').property('ADBE Vector Repeater Position')",
         "right": "var rt=rep.property('ADBE Vector Repeater Transform'); var rp=rt ? rt.property('ADBE Vector Repeater Pos') : null; if(rp) rp.setValue([50,0]);",
-        "error": "Returns null silently or throws ÃÂ¢ÃÂÃÂ position keyframe is never set.",
+        "error": "Returns null silently or throws ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ position keyframe is never set.",
         "note": "The correct internal name is 'Pos', not 'Position'. Always null-guard the result.",
         "source": "system-prompt-observed"
       },
@@ -84,7 +84,7 @@
         "wrong": "var grp=root.addProperty('ADBE Vector Group'); grp.name='Rect 1';",
         "right": "var grp=root.addProperty('ADBE Vector Group'); if(!grp) return JSON.stringify({success:false,message:'Could not create shape group.'}); grp.name='Rect 1';",
         "error": "TypeError: Cannot set property 'name' of null",
-        "note": "addProperty() can return null ÃÂ¢ÃÂÃÂ always guard before accessing the result.",
+        "note": "addProperty() can return null ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ always guard before accessing the result.",
         "source": "system-prompt-observed"
       },
       {
@@ -206,7 +206,7 @@
         "wrong": "var prop=null; try{prop=layer.property('Effects').property('Blur').property('Blurriness');}catch(e){}",
         "right": "var fx=layer.property('ADBE Effect Parade'); var blur=fx ? fx.property('Blur') : null; var prop=blur ? blur.property('Blurriness') : null; if(prop) prop.setValue(20);",
         "error": "try/catch swallows useful error info and masks real bugs.",
-        "note": "AE properties return null on incompatible types ÃÂ¢ÃÂÃÂ check for null rather than catching exceptions.",
+        "note": "AE properties return null on incompatible types ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ check for null rather than catching exceptions.",
         "source": "system-prompt-observed"
       }
     ]
@@ -215,7 +215,7 @@
     "_keywords": [
       "*"
     ],
-    "_description": "Rules about how the AI must format its code output ÃÂ¢ÃÂÃÂ always injected",
+    "_description": "Rules about how the AI must format its code output ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ always injected",
     "_always_inject": true,
     "rules": [
       {
@@ -240,6 +240,15 @@
         "right": "(function(){\n  var n=0;\n  try{\n    if(!app.project) return JSON.stringify({success:false,message:\"No project open.\"});\n    // ... work ...\n    return JSON.stringify({success:true,count:n});\n  }catch(e){\n    return JSON.stringify({success:false,message:String(e)});\n  }\n})();",
         "error": "Script returned no result. Make sure After Effects is open.",
         "note": "The script was truncated mid-string (unterminated string literal and unclosed IIFE), so AE evaluated nothing and got no return value. Ensure every generated script is syntactically complete: terminate all string literals, close all braces/parens, and end the IIFE with })(); so its last evaluated expression returns a JSON string.",
+        "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "iife-must-return-string-result",
+        "title": "Top-level IIFE must always return a string result so the host receives output",
+        "wrong": "(function(){\n  var n=0;\n  try{\n    if(!app.project) return JSON.stringify({success:false,message:\"No project open.\"});\n    // ... main logic, but no final return on success path\n  }catch(e){}\n})();",
+        "right": "var result;\n(function(){\n  try{\n    if(!app.project){ result = JSON.stringify({success:false,message:\"No project open.\"}); return; }\n    // ... main logic ...\n    result = JSON.stringify({success:true});\n  }catch(e){\n    result = JSON.stringify({success:false,message:String(e)});\n  }\n})();\nresult;",
+        "error": "Script returned no result. Make sure After Effects is open.",
+        "note": "ExtendScript returns the value of the last evaluated expression; a self-invoked function's internal return value is discarded by the host. Assign the JSON string to an outer variable and put that variable as the final statement so a string is always returned on every code path, including catch.",
         "source": "admin-approved:2026-06-08"
       }
     ]
