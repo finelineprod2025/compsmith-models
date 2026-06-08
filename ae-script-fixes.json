@@ -66,11 +66,7 @@
       "repeater offset",
       "shape repeater",
       "hexagon grid",
-      "tile pattern",
-      "polystar",
-      "hexagon",
-      "roundness",
-      "shape group"
+      "tile pattern"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -144,15 +140,6 @@
         "right": "var repTransform = rep.property(\"ADBE Vector Repeater Transform\");\nvar repPos = repTransform.property(\"ADBE Vector Repeater Position\");\nrepPos.setValue([w, 0]);",
         "error": "Could not access Repeater A Position.",
         "note": "The Repeater's Transform position match name is 'ADBE Vector Repeater Position', not 'ADBE Vector Repeater Pos'; the wrong name returns null and fails the guard. Other repeater sub-properties: 'ADBE Vector Repeater Copies', 'ADBE Vector Repeater Offset', 'ADBE Vector Repeater Anchor Point', 'ADBE Vector Repeater Rotation', 'ADBE Vector Repeater Scale'.",
-        "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "polystar-outer-roundness-matchname-2",
-        "title": "Use 'Outer Roundness' match name for Polystar roundness, not 'Roundness'",
-        "wrong": "var polyRoundness = poly.property(\"ADBE Vector Star Roundness\"); polyRoundness.setValue(0);",
-        "right": "var polyRoundness = poly.property(\"ADBE Vector Star Outer Roundess\"); if(polyRoundness) polyRoundness.setValue(0);",
-        "error": "Could not access Polystar Roundness property.",
-        "note": "The Polystar roundness property's match name is 'ADBE Vector Star Outer Roundess' (note the AE-internal misspelling 'Roundess' and the 'Outer' prefix). 'ADBE Vector Star Roundness' does not exist, so property() returns null. Always null-check shape match-name lookups since names differ from UI labels and vary subtly across AE versions.",
         "source": "admin-approved:2026-06-08"
       }
     ]
@@ -293,7 +280,12 @@
       "comp first",
       "selected layers",
       "current comp",
-      "project items"
+      "project items",
+      "property chain",
+      "effect property",
+      "transform property",
+      "addproperty",
+      "nested property"
     ],
     "_description": "General null-guard patterns for AE property access",
     "rules": [
@@ -340,6 +332,15 @@
         "right": "var comp = app.project.activeItem;\nif (!(comp && comp instanceof CompItem)) {\n  return JSON.stringify({success:false, message:\"No active composition. Open or select a comp first.\"});\n}\nvar layers = comp.layers;",
         "error": "ReferenceError: Object is invalid",
         "note": "In ES3 AE scripting, app.project.activeItem can be null or a non-Comp item (e.g. a folder or footage); accessing its members throws 'Object is invalid'. Always guard with `instanceof CompItem` before touching comp-specific properties.",
+        "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "guard-chained-property-lookups",
+        "title": "Null-guard each intermediate result when chaining property() lookups",
+        "wrong": "var color = layer.property(\"ADBE Effect Parade\").property(\"ADBE Fill\").property(\"ADBE Fill-0002\").value;",
+        "right": "var fx = layer.property(\"ADBE Effect Parade\");\nvar fill = fx ? fx.property(\"ADBE Fill\") : null;\nvar colorProp = fill ? fill.property(\"ADBE Fill-0002\") : null;\nif (colorProp) { var color = colorProp.value; }",
+        "error": "TypeError: null is not an object",
+        "note": "ExtendScript's property() returns null (not throwing) when a group/property is missing, so chaining .property().property() crashes on the first null link. Assign each lookup to a variable and guard before the next call; this also avoids the preflight blocker.",
         "source": "admin-approved:2026-06-08"
       }
     ]
