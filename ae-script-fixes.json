@@ -66,13 +66,7 @@
       "repeater offset",
       "shape repeater",
       "hexagon grid",
-      "tile pattern",
-      "polystar",
-      "hexagon",
-      "star shape",
-      "shape group",
-      "vector star",
-      "inner radius"
+      "tile pattern"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -146,15 +140,6 @@
         "right": "var repTransform = rep.property(\"ADBE Vector Repeater Transform\");\nvar repPos = repTransform.property(\"ADBE Vector Repeater Position\");\nrepPos.setValue([w, 0]);",
         "error": "Could not access Repeater A Position.",
         "note": "The Repeater's Transform position match name is 'ADBE Vector Repeater Position', not 'ADBE Vector Repeater Pos'; the wrong name returns null and fails the guard. Other repeater sub-properties: 'ADBE Vector Repeater Copies', 'ADBE Vector Repeater Offset', 'ADBE Vector Repeater Anchor Point', 'ADBE Vector Repeater Rotation', 'ADBE Vector Repeater Scale'.",
-        "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "polystar-star-type-before-radius",
-        "title": "Set Polystar type before inner radius; inner radius is hidden in polygon mode",
-        "wrong": "poly.property(\"ADBE Vector Star Type\").setValue(2);\npoly.property(\"ADBE Vector Star Inner Radius\").setValue(0);",
-        "right": "poly.property(\"ADBE Vector Star Type\").setValue(2); /* 2 = Polygon */\n// In Polygon mode, Inner Radius/Roundness are hidden — do NOT set them.\npoly.property(\"ADBE Vector Star Outer Radius\").setValue(hexagonSize / 2);\npoly.property(\"ADBE Vector Star Points\").setValue(6);",
-        "error": "After Effects error: Can not ",
-        "note": "When a Polystar's type is Polygon (value 2), the Inner Radius and Inner Roundness properties become hidden and cannot accept setValue. Only set Outer Radius, Outer Roundness, Points, Rotation, and Position in polygon mode; reserve inner properties for Star type (value 1).",
         "source": "admin-approved:2026-06-08"
       }
     ]
@@ -390,7 +375,13 @@
     ]
   },
   "general": {
-    "_keywords": [],
+    "_keywords": [
+      "healthcheck",
+      "ci validation",
+      "smoke test",
+      "minimal script",
+      "empty input"
+    ],
     "_description": "general",
     "rules": [
       {
@@ -409,6 +400,15 @@
         "right": "var result;\n(function(){\n  try{\n    if(!app.project){ result = JSON.stringify({success:false,message:\"No project open.\"}); return; }\n    // ... main logic ...\n    result = JSON.stringify({success:true});\n  }catch(e){\n    result = JSON.stringify({success:false,message:String(e)});\n  }\n})();\nresult;",
         "error": "Script returned no result. Make sure After Effects is open.",
         "note": "ExtendScript returns the value of the last evaluated expression; a self-invoked function's internal return value is discarded by the host. Assign the JSON string to an outer variable and put that variable as the final statement so a string is always returned on every code path, including catch.",
+        "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "non-empty-valid-script",
+        "title": "Generated output must be a complete, syntactically valid ExtendScript program",
+        "wrong": "x",
+        "right": "// Wrap real logic in an undo group and guard the active comp\napp.beginUndoGroup(\"Script\");\nvar comp = app.project.activeItem;\nif (comp && comp instanceof CompItem) {\n    // ... actual work here ...\n}\napp.endUndoGroup();",
+        "error": "ci healthcheck",
+        "note": "A single stray token like 'x' is not a runnable ExtendScript program and will fail any syntax/health check. Always emit a complete script with valid statements, a comp guard, and an undo group rather than placeholder text.",
         "source": "admin-approved:2026-06-08"
       }
     ]
