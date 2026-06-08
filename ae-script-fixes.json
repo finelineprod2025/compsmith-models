@@ -376,11 +376,10 @@
   },
   "general": {
     "_keywords": [
-      "healthcheck",
-      "ci validation",
+      "diagnostic",
+      "placeholder",
       "smoke test",
-      "minimal script",
-      "empty input"
+      "minimal script"
     ],
     "_description": "general",
     "rules": [
@@ -403,12 +402,12 @@
         "source": "admin-approved:2026-06-08"
       },
       {
-        "id": "non-empty-valid-script",
-        "title": "Generated output must be a complete, syntactically valid ExtendScript program",
-        "wrong": "x",
-        "right": "// Wrap real logic in an undo group and guard the active comp\napp.beginUndoGroup(\"Script\");\nvar comp = app.project.activeItem;\nif (comp && comp instanceof CompItem) {\n    // ... actual work here ...\n}\napp.endUndoGroup();",
-        "error": "ci healthcheck",
-        "note": "A single stray token like 'x' is not a runnable ExtendScript program and will fail any syntax/health check. Always emit a complete script with valid statements, a comp guard, and an undo group rather than placeholder text.",
+        "id": "no-empty-stub-scripts",
+        "title": "Generate complete, runnable scripts instead of placeholder stubs",
+        "wrong": "// diag",
+        "right": "var comp = app.project.activeItem;\nif (comp && comp instanceof CompItem) {\n    app.beginUndoGroup(\"Operation\");\n    // ... actual logic here ...\n    app.endUndoGroup();\n} else {\n    alert(\"Please open a composition first.\");\n}",
+        "error": "diag error entry",
+        "note": "A script consisting only of a comment performs no work and provides no diagnostics, so it appears to fail with no meaningful output. Always emit a full, self-contained script with an undo group and a guard that the active item is a CompItem.",
         "source": "admin-approved:2026-06-08"
       }
     ]
