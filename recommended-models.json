@@ -1,6 +1,7 @@
 {
   "_comment": "Public CompSmith model recommendations. Changes live within 24 h. 'best'=top performers, 'value'=cost-effective picks, 'fast'=low-latency picks. Providers are shown in CompSmith even before a user saves an API key.",
   "_updated": "2026-06",
+  "_version": 1,
   "providers": {
     "xai": {
       "name": "xAI",
