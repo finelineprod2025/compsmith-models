@@ -66,7 +66,13 @@
       "repeater offset",
       "shape repeater",
       "hexagon grid",
-      "tile pattern"
+      "tile pattern",
+      "polystar",
+      "hexagon",
+      "star shape",
+      "shape group",
+      "vector star",
+      "inner radius"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -140,6 +146,15 @@
         "right": "var repTransform = rep.property(\"ADBE Vector Repeater Transform\");\nvar repPos = repTransform.property(\"ADBE Vector Repeater Position\");\nrepPos.setValue([w, 0]);",
         "error": "Could not access Repeater A Position.",
         "note": "The Repeater's Transform position match name is 'ADBE Vector Repeater Position', not 'ADBE Vector Repeater Pos'; the wrong name returns null and fails the guard. Other repeater sub-properties: 'ADBE Vector Repeater Copies', 'ADBE Vector Repeater Offset', 'ADBE Vector Repeater Anchor Point', 'ADBE Vector Repeater Rotation', 'ADBE Vector Repeater Scale'.",
+        "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "polystar-star-type-before-radius",
+        "title": "Set Polystar type before inner radius; inner radius is hidden in polygon mode",
+        "wrong": "poly.property(\"ADBE Vector Star Type\").setValue(2);\npoly.property(\"ADBE Vector Star Inner Radius\").setValue(0);",
+        "right": "poly.property(\"ADBE Vector Star Type\").setValue(2); /* 2 = Polygon */\n// In Polygon mode, Inner Radius/Roundness are hidden — do NOT set them.\npoly.property(\"ADBE Vector Star Outer Radius\").setValue(hexagonSize / 2);\npoly.property(\"ADBE Vector Star Points\").setValue(6);",
+        "error": "After Effects error: Can not ",
+        "note": "When a Polystar's type is Polygon (value 2), the Inner Radius and Inner Roundness properties become hidden and cannot accept setValue. Only set Outer Radius, Outer Roundness, Points, Rotation, and Position in polygon mode; reserve inner properties for Star type (value 1).",
         "source": "admin-approved:2026-06-08"
       }
     ]
@@ -280,11 +295,7 @@
       "comp first",
       "selected layers",
       "current comp",
-      "project items",
-      "open comp",
-      "uhd",
-      "16:9",
-      "resolution check"
+      "project items"
     ],
     "_description": "General null-guard patterns for AE property access",
     "rules": [
@@ -331,15 +342,6 @@
         "right": "var comp = app.project.activeItem;\nif (!(comp && comp instanceof CompItem)) {\n  return JSON.stringify({success:false, message:\"No active composition. Open or select a comp first.\"});\n}\nvar layers = comp.layers;",
         "error": "ReferenceError: Object is invalid",
         "note": "In ES3 AE scripting, app.project.activeItem can be null or a non-Comp item (e.g. a folder or footage); accessing its members throws 'Object is invalid'. Always guard with `instanceof CompItem` before touching comp-specific properties.",
-        "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "guard-active-comp-and-resolution",
-        "title": "Guard for an active composition and validate its resolution before operating on it",
-        "wrong": "var comp = app.project.activeItem;\ncomp.layers.addText(\"Hi\"); // throws if no comp active or wrong size",
-        "right": "var comp = app.project.activeItem;\nif (!(comp && comp instanceof CompItem)) {\n  return JSON.stringify({success:false, message:\"No active composition. Open or select a comp first.\"});\n}\nif (comp.width !== 3840 || comp.height !== 2160) {\n  return JSON.stringify({success:false, message:\"Active comp is \"+comp.width+\"x\"+comp.height+\"; expected 3840x2160 (16:9 UHD).\"});\n}\n// safe to proceed",
-        "error": "No active composition. Please open or select a 16:9 UHD composition first, then run the script.",
-        "note": "app.project.activeItem can be null or a non-CompItem (e.g. a folder or footage), so always check `instanceof CompItem` before using comp-only properties. When a specific resolution/aspect is required, validate comp.width/comp.height explicitly rather than assuming the user selected the right comp.",
         "source": "admin-approved:2026-06-08"
       }
     ]
