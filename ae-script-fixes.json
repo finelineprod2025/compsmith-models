@@ -1,7 +1,7 @@
 {
   "_comment": "CompSmith AE script error knowledge base. Categories are injected selectively based on the user request keywords. Add new entries after reproducing and fixing the error in AE.",
   "_updated": "2026-06",
-  "_version": 8,
+  "_version": 9,
   "_categories": [
     "colors",
     "shape_layers",
@@ -26,16 +26,16 @@
     "rules": [
       {
         "id": "addSolid-rgb-only",
-        "title": "addSolid() takes [R,G,B] only ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ no alpha",
+        "title": "addSolid() takes [R,G,B] only ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ no alpha",
         "wrong": "comp.layers.addSolid([0.1, 0.4, 0.45, 1], ...)",
         "right": "comp.layers.addSolid([0.1, 0.4, 0.45], ...)",
         "error": "After Effects error: Color Array does not have 3 values.",
-        "note": "AE color arrays for addSolid are always 3-element RGB (0ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ1 range). Never include alpha as a 4th value.",
+        "note": "AE color arrays for addSolid are always 3-element RGB (0ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ1 range). Never include alpha as a 4th value.",
         "source": "session:01.md-2026-06-06"
       },
       {
         "id": "fill-color-rgb-only",
-        "title": "Fill color setValue() takes [R,G,B] ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ no alpha",
+        "title": "Fill color setValue() takes [R,G,B] ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ no alpha",
         "wrong": "fill.property('ADBE Vector Fill Color').setValue([1, 1, 0.8, 1])",
         "right": "fill.property('ADBE Vector Fill Color').setValue([1, 1, 0.8])",
         "error": "Possible silent wrong color or type error depending on AE version.",
@@ -69,7 +69,7 @@
         "title": "Repeater transform property is 'ADBE Vector Repeater Pos' not 'ADBE Vector Repeater Position'",
         "wrong": "rep.property('ADBE Vector Repeater Transform').property('ADBE Vector Repeater Position')",
         "right": "var rt=rep.property('ADBE Vector Repeater Transform'); var rp=rt ? rt.property('ADBE Vector Repeater Pos') : null; if(rp) rp.setValue([50,0]);",
-        "error": "Returns null silently or throws ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ position keyframe is never set.",
+        "error": "Returns null silently or throws ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ position keyframe is never set.",
         "note": "The correct internal name is 'Pos', not 'Position'. Always null-guard the result.",
         "source": "system-prompt-observed"
       },
@@ -88,7 +88,7 @@
         "wrong": "var grp=root.addProperty('ADBE Vector Group'); grp.name='Rect 1';",
         "right": "var grp=root.addProperty('ADBE Vector Group'); if(!grp) return JSON.stringify({success:false,message:'Could not create shape group.'}); grp.name='Rect 1';",
         "error": "TypeError: Cannot set property 'name' of null",
-        "note": "addProperty() can return null ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ always guard before accessing the result.",
+        "note": "addProperty() can return null ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ always guard before accessing the result.",
         "source": "system-prompt-observed"
       },
       {
@@ -102,6 +102,15 @@
       },
       {
         "id": "repeater-property-path",
+        "title": "Access Repeater sub-properties via the Repeater operator group, not the Transform group",
+        "wrong": "var repPos = shapeLayer.property(\"ADBE Root Vectors Group\").property(\"ADBE Vector Transform Group\").property(\"Repeater A Position\");",
+        "right": "var contents = shapeLayer.property(\"ADBE Root Vectors Group\");\nvar repeater = contents.addProperty(\"ADBE Vector Filter - Repeater\");\nvar repTransform = repeater.property(\"ADBE Vector Repeater Transform\");\nvar repPos = repTransform.property(\"ADBE Vector Repeater Position\");",
+        "error": "Could not access Repeater A Position.",
+        "note": "Repeater Position lives under the Repeater operator's own transform group (\"ADBE Vector Repeater Transform\" â \"ADBE Vector Repeater Position\"), not the layer's Vector Transform group. Use match names rather than display names like \"Repeater A Position\", which are not valid property identifiers in ExtendScript.",
+        "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "repeater-property-path-2",
         "title": "Access Repeater sub-properties via the Repeater operator group, not the Transform group",
         "wrong": "var repPos = shapeLayer.property(\"ADBE Root Vectors Group\").property(\"ADBE Vector Transform Group\").property(\"Repeater A Position\");",
         "right": "var contents = shapeLayer.property(\"ADBE Root Vectors Group\");\nvar repeater = contents.addProperty(\"ADBE Vector Filter - Repeater\");\nvar repTransform = repeater.property(\"ADBE Vector Repeater Transform\");\nvar repPos = repTransform.property(\"ADBE Vector Repeater Position\");",
@@ -219,7 +228,7 @@
         "wrong": "var prop=null; try{prop=layer.property('Effects').property('Blur').property('Blurriness');}catch(e){}",
         "right": "var fx=layer.property('ADBE Effect Parade'); var blur=fx ? fx.property('Blur') : null; var prop=blur ? blur.property('Blurriness') : null; if(prop) prop.setValue(20);",
         "error": "try/catch swallows useful error info and masks real bugs.",
-        "note": "AE properties return null on incompatible types ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ check for null rather than catching exceptions.",
+        "note": "AE properties return null on incompatible types ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ check for null rather than catching exceptions.",
         "source": "system-prompt-observed"
       }
     ]
@@ -235,7 +244,7 @@
       "no result",
       "stringify"
     ],
-    "_description": "Rules about how the AI must format its code output ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ always injected",
+    "_description": "Rules about how the AI must format its code output ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ always injected",
     "_always_inject": true,
     "rules": [
       {
