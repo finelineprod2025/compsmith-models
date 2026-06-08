@@ -10,7 +10,8 @@
     "effects",
     "null_guards",
     "output_format",
-    "general"
+    "general",
+    "expressions"
   ],
   "colors": {
     "_keywords": [
@@ -280,12 +281,7 @@
       "comp first",
       "selected layers",
       "current comp",
-      "project items",
-      "property chain",
-      "effect property",
-      "transform property",
-      "addproperty",
-      "nested property"
+      "project items"
     ],
     "_description": "General null-guard patterns for AE property access",
     "rules": [
@@ -332,15 +328,6 @@
         "right": "var comp = app.project.activeItem;\nif (!(comp && comp instanceof CompItem)) {\n  return JSON.stringify({success:false, message:\"No active composition. Open or select a comp first.\"});\n}\nvar layers = comp.layers;",
         "error": "ReferenceError: Object is invalid",
         "note": "In ES3 AE scripting, app.project.activeItem can be null or a non-Comp item (e.g. a folder or footage); accessing its members throws 'Object is invalid'. Always guard with `instanceof CompItem` before touching comp-specific properties.",
-        "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "guard-chained-property-lookups",
-        "title": "Null-guard each intermediate result when chaining property() lookups",
-        "wrong": "var color = layer.property(\"ADBE Effect Parade\").property(\"ADBE Fill\").property(\"ADBE Fill-0002\").value;",
-        "right": "var fx = layer.property(\"ADBE Effect Parade\");\nvar fill = fx ? fx.property(\"ADBE Fill\") : null;\nvar colorProp = fill ? fill.property(\"ADBE Fill-0002\") : null;\nif (colorProp) { var color = colorProp.value; }",
-        "error": "TypeError: null is not an object",
-        "note": "ExtendScript's property() returns null (not throwing) when a group/property is missing, so chaining .property().property() crashes on the first null link. Assign each lookup to a variable and guard before the next call; this also avoids the preflight blocker.",
         "source": "admin-approved:2026-06-08"
       }
     ]
@@ -408,6 +395,28 @@
         "right": "var result;\n(function(){\n  try{\n    if(!app.project){ result = JSON.stringify({success:false,message:\"No project open.\"}); return; }\n    // ... main logic ...\n    result = JSON.stringify({success:true});\n  }catch(e){\n    result = JSON.stringify({success:false,message:String(e)});\n  }\n})();\nresult;",
         "error": "Script returned no result. Make sure After Effects is open.",
         "note": "ExtendScript returns the value of the last evaluated expression; a self-invoked function's internal return value is discarded by the host. Assign the JSON string to an outer variable and put that variable as the final statement so a string is always returned on every code path, including catch.",
+        "source": "admin-approved:2026-06-08"
+      }
+    ]
+  },
+  "expressions": {
+    "_keywords": [
+      "temporal ease",
+      "keyframe ease",
+      "easy ease",
+      "settemporaleaseatkey",
+      "keyframe interpolation",
+      "spatial ease"
+    ],
+    "_description": "expressions",
+    "rules": [
+      {
+        "id": "temporal-ease-array-length",
+        "title": "setTemporalEaseAtKey requires one KeyframeEase per property dimension",
+        "wrong": "prop.setTemporalEaseAtKey(i, [new KeyframeEase(0,33)], [new KeyframeEase(0,33)]);",
+        "right": "var dims = prop.value instanceof Array ? prop.value.length : 1;\nvar easeIn=[], easeOut=[];\nfor(var d=0; d<dims; d++){ easeIn.push(new KeyframeEase(0,33)); easeOut.push(new KeyframeEase(0,33)); }\nprop.setTemporalEaseAtKey(i, easeIn, easeOut);",
+        "error": "After Effects error: Unable to call ",
+        "note": "The inEase/outEase arrays must contain exactly one KeyframeEase object per dimension of the property (1 for scalars like Opacity/Rotation, 2 for Position/Scale, 3 for 3D Position/Scale). Match the array length to prop.value.length to avoid mismatch errors.",
         "source": "admin-approved:2026-06-08"
       }
     ]
