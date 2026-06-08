@@ -10,8 +10,7 @@
     "effects",
     "null_guards",
     "output_format",
-    "general",
-    "footage"
+    "general"
   ],
   "colors": {
     "_keywords": [
@@ -67,7 +66,11 @@
       "repeater offset",
       "shape repeater",
       "hexagon grid",
-      "tile pattern"
+      "tile pattern",
+      "polystar",
+      "hexagon",
+      "roundness",
+      "shape group"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -141,6 +144,15 @@
         "right": "var repTransform = rep.property(\"ADBE Vector Repeater Transform\");\nvar repPos = repTransform.property(\"ADBE Vector Repeater Position\");\nrepPos.setValue([w, 0]);",
         "error": "Could not access Repeater A Position.",
         "note": "The Repeater's Transform position match name is 'ADBE Vector Repeater Position', not 'ADBE Vector Repeater Pos'; the wrong name returns null and fails the guard. Other repeater sub-properties: 'ADBE Vector Repeater Copies', 'ADBE Vector Repeater Offset', 'ADBE Vector Repeater Anchor Point', 'ADBE Vector Repeater Rotation', 'ADBE Vector Repeater Scale'.",
+        "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "polystar-outer-roundness-matchname-2",
+        "title": "Use 'Outer Roundness' match name for Polystar roundness, not 'Roundness'",
+        "wrong": "var polyRoundness = poly.property(\"ADBE Vector Star Roundness\"); polyRoundness.setValue(0);",
+        "right": "var polyRoundness = poly.property(\"ADBE Vector Star Outer Roundess\"); if(polyRoundness) polyRoundness.setValue(0);",
+        "error": "Could not access Polystar Roundness property.",
+        "note": "The Polystar roundness property's match name is 'ADBE Vector Star Outer Roundess' (note the AE-internal misspelling 'Roundess' and the 'Outer' prefix). 'ADBE Vector Star Roundness' does not exist, so property() returns null. Always null-check shape match-name lookups since names differ from UI labels and vary subtly across AE versions.",
         "source": "admin-approved:2026-06-08"
       }
     ]
@@ -395,28 +407,6 @@
         "right": "var result;\n(function(){\n  try{\n    if(!app.project){ result = JSON.stringify({success:false,message:\"No project open.\"}); return; }\n    // ... main logic ...\n    result = JSON.stringify({success:true});\n  }catch(e){\n    result = JSON.stringify({success:false,message:String(e)});\n  }\n})();\nresult;",
         "error": "Script returned no result. Make sure After Effects is open.",
         "note": "ExtendScript returns the value of the last evaluated expression; a self-invoked function's internal return value is discarded by the host. Assign the JSON string to an outer variable and put that variable as the final statement so a string is always returned on every code path, including catch.",
-        "source": "admin-approved:2026-06-08"
-      }
-    ]
-  },
-  "footage": {
-    "_keywords": [
-      "image gen",
-      "generated image",
-      "save to disk",
-      "ig-history",
-      "write image",
-      "image cache folder"
-    ],
-    "_description": "footage",
-    "rules": [
-      {
-        "id": "ensure-writable-image-cache-folder",
-        "title": "Create and verify the image-history folder is writable before saving generated images",
-        "wrong": "var outFile = new File(historyFolder.fsName + '/' + name + '.png');\noutFile.write(imageData); // folder may not exist or be read-only",
-        "right": "var folder = new Folder(historyFolder.fsName);\nif (!folder.exists) { folder.create(); }\nvar outFile = new File(folder.fsName + '/' + name + '.png');\nif (!outFile.open('w')) {\n  alert('Cannot open file for writing: ' + outFile.fsName);\n} else {\n  outFile.encoding = 'BINARY';\n  var ok = outFile.write(imageData);\n  outFile.close();\n  if (!ok) { alert('Write failed — check folder permissions.'); }\n}",
-        "error": "⚠ Could not write the generated image to disk. Check that the extension folder is writable.",
-        "note": "ExtendScript will silently fail or throw when writing to a non-existent or read-only path; always Folder.create() the target, open the File with open('w') and set encoding='BINARY' for image bytes, then verify the return value. Writing into the CEP extension install folder under AppData can be blocked by OS permissions, so fall back to Folder.userData or Folder.temp when the primary write fails.",
         "source": "admin-approved:2026-06-08"
       }
     ]
