@@ -282,8 +282,9 @@
       "current comp",
       "project items",
       "open comp",
-      "no comp open",
-      "project panel selection"
+      "uhd",
+      "16:9",
+      "resolution check"
     ],
     "_description": "General null-guard patterns for AE property access",
     "rules": [
@@ -333,12 +334,12 @@
         "source": "admin-approved:2026-06-08"
       },
       {
-        "id": "activeitem-requires-comp-viewer-focus",
-        "title": "Don't rely solely on app.project.activeItem — fall back to a project comp when no comp is focused",
-        "wrong": "var comp=app.project.activeItem;\nif(!comp || !(comp instanceof CompItem)) return JSON.stringify({success:false,message:\"Open a comp first.\"});",
-        "right": "var comp=(app.project.activeItem instanceof CompItem)?app.project.activeItem:null;\nif(!comp){\n  for(var i=1;i<=app.project.numItems;i++){\n    if(app.project.item(i) instanceof CompItem){comp=app.project.item(i);break;}\n  }\n}\nif(!comp) return JSON.stringify({success:false,message:\"No composition found. Create or open a comp first.\"});\ncomp.openInViewer();",
-        "error": "Open a comp first.",
-        "note": "app.project.activeItem is null unless a comp is actually selected/open in the Composition or Timeline panel — selecting a comp in the Project panel without opening it, or having a footage/folder item active, returns null or a non-CompItem. Scan app.project.item(i) for a CompItem fallback and call openInViewer() so subsequent operations have a valid comp.",
+        "id": "guard-active-comp-and-resolution",
+        "title": "Guard for an active composition and validate its resolution before operating on it",
+        "wrong": "var comp = app.project.activeItem;\ncomp.layers.addText(\"Hi\"); // throws if no comp active or wrong size",
+        "right": "var comp = app.project.activeItem;\nif (!(comp && comp instanceof CompItem)) {\n  return JSON.stringify({success:false, message:\"No active composition. Open or select a comp first.\"});\n}\nif (comp.width !== 3840 || comp.height !== 2160) {\n  return JSON.stringify({success:false, message:\"Active comp is \"+comp.width+\"x\"+comp.height+\"; expected 3840x2160 (16:9 UHD).\"});\n}\n// safe to proceed",
+        "error": "No active composition. Please open or select a 16:9 UHD composition first, then run the script.",
+        "note": "app.project.activeItem can be null or a non-CompItem (e.g. a folder or footage), so always check `instanceof CompItem` before using comp-only properties. When a specific resolution/aspect is required, validate comp.width/comp.height explicitly rather than assuming the user selected the right comp.",
         "source": "admin-approved:2026-06-08"
       }
     ]
