@@ -1,7 +1,7 @@
 {
   "_comment": "CompSmith AE script error knowledge base. Categories are injected selectively based on the user request keywords. Add new entries after reproducing and fixing the error in AE.",
   "_updated": "2026-06",
-  "_version": 19,
+  "_version": 20,
   "_categories": [
     "colors",
     "shape_layers",
@@ -288,7 +288,13 @@
       "stringify result",
       "evalscript",
       "no result",
-      "stringify"
+      "stringify",
+      "lower thirds",
+      "lower-third",
+      "title card",
+      "name and title",
+      "broadcast graphics",
+      "uhd comp"
     ],
     "_description": "Rules about how the AI must format its code output",
     "_always_inject": true,
@@ -319,6 +325,15 @@
         "error": "Script returned no result. Make sure After Effects is open.",
         "note": "In ES3 a string literal must be terminated on the same logical line; a trailing backslash before a newline (or a truncated snippet) produces a syntax error so the IIFE never returns a value, which AE reports as 'Script returned no result.' Always close every string and return a fully-formed JSON.stringify result.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "iife-must-return-string-result",
+        "title": "Wrap script in a self-invoking function that always returns a final JSON string",
+        "wrong": "(function(){\n  var n=0;\n  try{\n    if(!app.project) return JSON.stringify({success:false,message:\"No project open.\n// truncated / never closed — no return value reaches host",
+        "right": "(function(){\n  try{\n    if(!app.project) return JSON.stringify({success:false,message:\"No project open.\"});\n    // ... build lower thirds ...\n    return JSON.stringify({success:true,message:\"Lower thirds created.\"});\n  }catch(e){\n    return JSON.stringify({success:false,message:String(e)});\n  }\n})();",
+        "error": "Script returned no result. Make sure After Effects is open.",
+        "note": "The IIFE was never closed and no string was returned, so the host saw no result. Every code path (success, guard, and catch) must return a complete JSON.stringify(...) string, and the function must end with })(); — ES3 has no template literals, so build messages with normal string concatenation and properly escaped quotes.",
+        "source": "admin-approved:2026-06-09"
       }
     ]
   },
