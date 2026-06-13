@@ -1,7 +1,7 @@
 {
   "_comment": "CompSmith AE script error knowledge base. Categories are injected selectively based on the user request keywords. Add new entries after reproducing and fixing the error in AE.",
   "_updated": "2026-06",
-  "_version": 25,
+  "_version": 26,
   "_categories": [
     "colors",
     "shape_layers",
@@ -266,7 +266,11 @@
       "gradient",
       "ramp effect",
       "color fill",
-      "addproperty effect"
+      "addproperty effect",
+      "adbe glow",
+      "adbe glo2",
+      "effect parade",
+      "shape layer glow"
     ],
     "_description": "Effect property access rules",
     "rules": [
@@ -305,6 +309,15 @@
         "error": "After Effects error: Can not add a property with name Ã",
         "note": "The Gradient Ramp effect's internal match name is \"ADBE Ramp\", not \"ADBE Gradient Ramp\"; addProperty must receive the exact match name or it throws. Always verify match names against the AE match name reference rather than guessing from the UI display name.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "use-valid-glow-effect-matchname",
+        "title": "Use the valid Glow effect match name",
+        "wrong": "The script tries to add Glow using fxPar.addProperty(\"ADBE Glow\"), which is not a valid effect match name for adding the Glow effect.",
+        "right": "Add Glow to the layer's ADBE Effect Parade using the valid match name \"ADBE Glo2\", then guard every returned property before setting values.",
+        "error": "Can not add a property with name “ADBE Glow”",
+        "note": "When generating glow effects, use var glow = fxPar.addProperty(\"ADBE Glo2\"); never use \"ADBE Glow\". If Glow is not available, create a visual glow fallback with duplicated blurred/transparent shape layers instead of failing.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
