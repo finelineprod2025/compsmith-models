@@ -10,7 +10,8 @@
     "effects",
     "null_guards",
     "output_format",
-    "general"
+    "general",
+    "footage"
   ],
   "colors": {
     "_keywords": [
@@ -84,9 +85,7 @@
       "in front",
       "waves",
       "clouds",
-      "scenery",
-      "vector repeater",
-      "duplicate shapes"
+      "scenery"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -152,15 +151,6 @@
         "error": "Larger/background shape covers everything else — depth order inside the shape layer is inverted",
         "note": "Inside a single shape layer's Contents, the FIRST group added with addProperty() renders frontmost and every later addProperty() stacks BEHIND it. When depth layers are described background-to-foreground (dunes, mountains, parallax hills, layered waves, clouds), iterate the array in REVERSE so the foreground is added first and the big background shape ends up behind everything. Creation order is the inverse of visual stacking — do not assume add order matches back-to-front.",
         "source": "user-added:2026-06-13"
-      },
-      {
-        "id": "repeater-position-matchname",
-        "title": "Use 'ADBE Vector Repeater Position' (not 'Pos') for a Repeater's offset property",
-        "wrong": "var repAPos = repATransform.property(\"ADBE Vector Repeater Pos\");",
-        "right": "var repAPos = repATransform.property(\"ADBE Vector Repeater Position\");",
-        "error": "Could not access Repeater A Position.",
-        "note": "The Repeater Transform's offset property match name is 'ADBE Vector Repeater Position', not 'ADBE Vector Repeater Pos'; the latter resolves to null. As a fallback, index access repATransform.property(2) also works since Position is the second property under the Repeater Transform group.",
-        "source": "admin-approved:2026-06-13"
       }
     ]
   },
@@ -429,5 +419,27 @@
       }
     ],
     "_always_inject": true
+  },
+  "footage": {
+    "_keywords": [
+      "image gen",
+      "generated image",
+      "save image",
+      "write file",
+      "ig-history",
+      "import generated"
+    ],
+    "_description": "footage",
+    "rules": [
+      {
+        "id": "writable-image-output-folder",
+        "title": "Verify and create a writable output folder before writing generated images to disk",
+        "wrong": "var folder = new Folder(\"C:/Users/info/AppData/Roaming/Adobe/CEP/extensions/com.compsmith/ig-history\");\nvar f = new File(folder.fsName + \"/gen.png\");\nf.open(\"w\");\nf.write(imageData);\nf.close();",
+        "right": "var folder = new Folder(Folder.userData.fsName + \"/com.compsmith/ig-history\");\nif (!folder.exists) folder.create();\nvar f = new File(folder.fsName + \"/gen_\" + (new Date()).getTime() + \".png\");\nif (!f.open(\"w\")) { alert(\"Cannot write to: \" + folder.fsName); }\nelse {\n  f.encoding = \"BINARY\";\n  f.write(imageData);\n  f.close();\n}",
+        "error": "Could not write the generated image to disk. Check that the extension folder is writable.",
+        "note": "CEP extension install folders are often read-only (especially under Program Files or a managed AppData path); write generated assets to Folder.userData or Folder.temp and always call folder.create() plus check the File.open() return value. In ES3 there is no try/finally guarantee, so check open() boolean and set encoding=\"BINARY\" before writing image bytes.",
+        "source": "admin-approved:2026-06-13"
+      }
+    ]
   }
 }
