@@ -196,7 +196,13 @@
       "Value array does not have 3 elements",
       "parameter 2",
       "transform easing",
-      "keyframes"
+      "keyframes",
+      "temporal ease",
+      "settemporaleaseatkey",
+      "keyframe ease",
+      "easy ease",
+      "spatial ease",
+      "keyframe interpolation"
     ],
     "_description": "Transform group property access rules",
     "rules": [
@@ -217,6 +223,15 @@
         "error": "Unable to call \"setTemporalEaseAtKey\" because of parameter 2. Value array does not have 3 elements.",
         "note": "After Effects expects one KeyframeEase object per property dimension. Do not assume Scale is 2D; Transform Scale commonly has 3 components. For scalar properties like Opacity or Rotation, use one ease object. For arrays, use prop.value.length.",
         "source": "user-added:2026-06-13"
+      },
+      {
+        "id": "temporal-ease-keyframe-array-length",
+        "title": "setTemporalEaseAtKey ease arrays must match the property's dimension count",
+        "wrong": "prop.setTemporalEaseAtKey(i, [new KeyframeEase(0,33)], [new KeyframeEase(0,33)]);",
+        "right": "var dims = prop.value.length || 1;\nvar inEase = [], outEase = [];\nfor (var d = 0; d < dims; d++) {\n  inEase.push(new KeyframeEase(0, 33));\n  outEase.push(new KeyframeEase(0, 33));\n}\nprop.setTemporalEaseAtKey(i, inEase, outEase);",
+        "error": "After Effects error: Unable to call “setTemporalEaseAtKey” because of parameter 2. Value array does not have 3 elements.",
+        "note": "The KeyframeEase arrays passed to setTemporalEaseAtKey must contain exactly one element per value dimension: 1 for 1D props (Opacity, Rotation), 2 for Position (XY) and Scale, and 3 for 3D Position/Scale. Build the arrays from prop.value.length (or prop.propertyValueType) rather than hardcoding a single element.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
@@ -386,14 +401,7 @@
     ]
   },
   "general": {
-    "_keywords": [
-      "json result",
-      "return value",
-      "script output",
-      "extendscript wrapper",
-      "iife",
-      "evalscript"
-    ],
+    "_keywords": [],
     "_description": "Universal IIFE structure and return value rules",
     "rules": [
       {
@@ -422,15 +430,6 @@
         "error": "diag error entry",
         "note": "A script consisting only of a comment performs no work and provides no diagnostics, so it appears to fail with no meaningful output. Always emit a full, self-contained script with an undo group and a guard that the active item is a CompItem.",
         "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "complete-iife-and-return-json",
-        "title": "Always close the IIFE and return a JSON result string from the top level",
-        "wrong": "(function(){\n  var n=0;\n  try{\n    if(!app.project) return JSON.stringify({success:false,message:\"No project open.\n    // ...truncated, no closing braces, no return at end\n",
-        "right": "(function(){\n  try{\n    if(!app.project) return JSON.stringify({success:false,message:\"No project open.\"});\n    // ... do work ...\n    return JSON.stringify({success:true,message:\"Done.\"});\n  }catch(e){\n    return JSON.stringify({success:false,message:String(e)});\n  }\n})();",
-        "error": "Script returned no result — diagnosing…",
-        "note": "The script must be a syntactically complete IIFE: every string literal, try/catch, and brace must be closed, and the top-level function must always return a JSON string. An unterminated string literal or missing return makes ExtendScript evaluate to undefined, so the host sees no result.",
-        "source": "admin-approved:2026-06-13"
       }
     ],
     "_always_inject": true
