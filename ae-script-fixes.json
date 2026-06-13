@@ -91,9 +91,7 @@
       "vectors group",
       "nested group",
       "subgroup",
-      "group contents",
-      "root vectors",
-      "adbe vector filter - repeater"
+      "group contents"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -167,15 +165,6 @@
         "right": "var grp=root.addProperty(\"ADBE Vector Group\");\nvar contents=grp.property(\"ADBE Vectors Group\"); // child container of the group\nif(contents){ var poly=contents.addProperty(\"ADBE Vector Shape - Star\"); }",
         "error": "ReferenceError: Object is invalid",
         "note": "A new 'ADBE Vector Group' returns valid, but its child contents container must be fetched via property(\"ADBE Vectors Group\") before adding shapes; calling addProperty/property on an undefined or already-invalidated group reference throws 'Object is invalid'. Always null-check each intermediate group/contents reference and never reuse a reference after the object's parent has been re-added or moved.",
-        "source": "admin-approved:2026-06-13"
-      },
-      {
-        "id": "place-repeaters-inside-shape-group",
-        "title": "Place Shape Repeaters inside group contents",
-        "wrong": "The script adds a Shape Repeater at the root vector level instead of inside a shape group's contents.",
-        "right": "Create a Vector Group first, get its ADBE Vectors Group contents, add the shape paths/fills/strokes there, then add ADBE Vector Filter - Repeater inside that same group contents.",
-        "error": "adds a Shape Repeater at the root level",
-        "note": "Never add repeaters directly to ADBE Root Vectors Group. Always use group.property(\"ADBE Vectors Group\").addProperty(\"ADBE Vector Filter - Repeater\").",
         "source": "admin-approved:2026-06-13"
       }
     ]
@@ -277,7 +266,12 @@
       "gradient",
       "ramp effect",
       "color fill",
-      "addproperty effect"
+      "addproperty effect",
+      "particles",
+      "cc particle world",
+      "cc particle systems ii",
+      "effect not found",
+      "snow particles"
     ],
     "_description": "Effect property access rules",
     "rules": [
@@ -316,6 +310,15 @@
         "error": "After Effects error: Can not add a property with name Ã",
         "note": "The Gradient Ramp effect's internal match name is \"ADBE Ramp\", not \"ADBE Gradient Ramp\"; addProperty must receive the exact match name or it throws. Always verify match names against the AE match name reference rather than guessing from the UI display name.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "guard-particle-effects-with-fallback",
+        "title": "Guard particle effects and provide fallback",
+        "wrong": "The script assumes CC Particle World or CC Particle Systems II exists and then fails validation when no compatible particle effect is found.",
+        "right": "Try adding supported particle effects with guarded addProperty calls. If unavailable, generate particles using shape layers, small ellipses, repeaters, or animated duplicate layers as a fallback.",
+        "error": "Could not find 'CC Particle World'",
+        "note": "For snow, stars, dust, sparks, or particles, do not depend only on CC effects. Always include a shape-layer particle fallback so the script succeeds even when CC effects are missing.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
