@@ -89,8 +89,8 @@
           "2K",
           "4K"
         ],
-        "pricePerImage": 0.04,
         "rank": 10,
+        "pricePerImage": 0.04,
         "experimental": true
       },
       {
@@ -102,8 +102,8 @@
           "2K",
           "4K"
         ],
-        "pricePerImage": 0.04,
-        "rank": 20
+        "rank": 20,
+        "pricePerImage": 0.04
       },
       {
         "id": "gemini-3-pro-image-preview",
@@ -114,8 +114,8 @@
           "2K",
           "4K"
         ],
-        "pricePerImage": 0.04,
-        "rank": 30
+        "rank": 30,
+        "pricePerImage": 0.04
       },
       {
         "id": "gpt-image-1",
@@ -126,8 +126,8 @@
           "1536x1024",
           "1024x1536"
         ],
-        "pricePerImage": 0.04,
-        "rank": 40
+        "rank": 40,
+        "pricePerImage": 0.04
       },
       {
         "id": "recraft/recraft-v3",
@@ -137,8 +137,8 @@
           "1K",
           "2K"
         ],
-        "pricePerImage": 0.04,
         "rank": 50,
+        "pricePerImage": 0.04,
         "experimental": true
       },
       {
@@ -148,8 +148,8 @@
         "sizes": [
           "1K"
         ],
-        "pricePerImage": 0.03,
         "rank": 60,
+        "pricePerImage": 0.03,
         "experimental": true
       },
       {
@@ -161,8 +161,8 @@
           "2K",
           "4K"
         ],
-        "pricePerImage": 0.04,
-        "rank": 70
+        "rank": 70,
+        "pricePerImage": 0.04
       },
       {
         "id": "gemini-2.5-flash-image",
@@ -171,8 +171,8 @@
         "sizes": [
           "1K"
         ],
-        "pricePerImage": 0.03,
-        "rank": 80
+        "rank": 80,
+        "pricePerImage": 0.03
       },
       {
         "id": "dall-e-3",
@@ -183,8 +183,8 @@
           "1792x1024",
           "1024x1792"
         ],
-        "pricePerImage": 0.04,
-        "rank": 90
+        "rank": 90,
+        "pricePerImage": 0.04
       }
     ]
   },
