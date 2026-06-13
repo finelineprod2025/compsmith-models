@@ -91,7 +91,9 @@
       "vectors group",
       "nested group",
       "subgroup",
-      "group contents"
+      "group contents",
+      "root vectors",
+      "adbe vector filter - repeater"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -165,6 +167,15 @@
         "right": "var grp=root.addProperty(\"ADBE Vector Group\");\nvar contents=grp.property(\"ADBE Vectors Group\"); // child container of the group\nif(contents){ var poly=contents.addProperty(\"ADBE Vector Shape - Star\"); }",
         "error": "ReferenceError: Object is invalid",
         "note": "A new 'ADBE Vector Group' returns valid, but its child contents container must be fetched via property(\"ADBE Vectors Group\") before adding shapes; calling addProperty/property on an undefined or already-invalidated group reference throws 'Object is invalid'. Always null-check each intermediate group/contents reference and never reuse a reference after the object's parent has been re-added or moved.",
+        "source": "admin-approved:2026-06-13"
+      },
+      {
+        "id": "place-repeaters-inside-shape-group",
+        "title": "Place Shape Repeaters inside group contents",
+        "wrong": "The script adds a Shape Repeater at the root vector level instead of inside a shape group's contents.",
+        "right": "Create a Vector Group first, get its ADBE Vectors Group contents, add the shape paths/fills/strokes there, then add ADBE Vector Filter - Repeater inside that same group contents.",
+        "error": "adds a Shape Repeater at the root level",
+        "note": "Never add repeaters directly to ADBE Root Vectors Group. Always use group.property(\"ADBE Vectors Group\").addProperty(\"ADBE Vector Filter - Repeater\").",
         "source": "admin-approved:2026-06-13"
       }
     ]
@@ -418,12 +429,7 @@
     ]
   },
   "general": {
-    "_keywords": [
-      "connectivity test",
-      "safe to delete",
-      "codex-test",
-      "test report"
-    ],
+    "_keywords": [],
     "_description": "Universal IIFE structure and return value rules",
     "rules": [
       {
@@ -452,15 +458,6 @@
         "error": "diag error entry",
         "note": "A script consisting only of a comment performs no work and provides no diagnostics, so it appears to fail with no meaningful output. Always emit a full, self-contained script with an undo group and a guard that the active item is a CompItem.",
         "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "ignore-connectivity-test-reports",
-        "title": "Ignore connectivity test reports",
-        "wrong": "A connectivity test report is mixed into the script-fix queue as if it were a real generation failure.",
-        "right": "Detect safe connectivity-test reports and mark them as ignorable or resolved without creating script-generation rules.",
-        "error": "Connectivity test report",
-        "note": "If prompt or error contains connectivity test, safe to delete, or codex-test, do not send it to the rule-generation pipeline.",
-        "source": "admin-approved:2026-06-13"
       }
     ],
     "_always_inject": true
