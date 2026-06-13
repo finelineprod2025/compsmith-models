@@ -76,7 +76,7 @@
     }
   },
   "image": {
-    "_notes": "MANUAL CURATION \u2014 this block is never overwritten by the auto-updater. Edit freely. 'default' = model selected on first launch (must match an id below). 'rank' = display order in the picker (1 = top, higher = lower). Leave gaps between ranks (10,20,30) so you can insert models later without renumbering everything. 'experimental' = shown with a warning badge.",
+    "_notes": "MANUAL CURATION — this block is never overwritten by the auto-updater. Edit freely. 'default' = model selected on first launch (must match an id below). 'rank' = display order in the picker (1 = top, higher = lower). Leave gaps between ranks (10,20,30) so you can insert models later without renumbering everything. 'experimental' = shown with a warning badge.",
     "default": "google/gemini-3.1-flash-image-preview",
     "models": [
       {
@@ -1075,6 +1075,18 @@
     "gpt-3.5-turbo": {
       "i": 0.5,
       "o": 1.5
+    }
+  },
+  "routing": {
+    "_comment": "Keywords for requestComplexity() and requestCategory() in main.js. Edit via edit-routing-keywords.vbs.",
+    "complexity": {
+      "high": [],
+      "high_count": true,
+      "med": []
+    },
+    "category": {
+      "vision": [],
+      "reasoning": []
     }
   }
 }
