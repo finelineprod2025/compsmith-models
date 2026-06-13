@@ -228,7 +228,12 @@
       "Value array does not have 3 elements",
       "parameter 2",
       "transform easing",
-      "keyframes"
+      "keyframes",
+      "movebefore",
+      "moveafter",
+      "layer order",
+      "self layer",
+      "same layer"
     ],
     "_description": "Transform group property access rules",
     "rules": [
@@ -249,6 +254,15 @@
         "error": "Unable to call \"setTemporalEaseAtKey\" because of parameter 2. Value array does not have 3 elements.",
         "note": "After Effects expects one KeyframeEase object per property dimension. Do not assume Scale is 2D; Transform Scale commonly has 3 components. For scalar properties like Opacity or Rotation, use one ease object. For arrays, use prop.value.length.",
         "source": "user-added:2026-06-13"
+      },
+      {
+        "id": "avoid-moving-layer-relative-to-itself",
+        "title": "Do not move a layer before or after itself",
+        "wrong": "The script attempts to reorder a layer relative to itself, causing After Effects to throw an error.",
+        "right": "Before calling moveBefore or moveAfter, verify both layers exist, are different objects, and have different indexes.",
+        "error": "Can not move a layer before or after itself",
+        "note": "Use guards like if(target && layer && target !== layer && target.index !== layer.index){ layer.moveBefore(target); } before any layer reordering.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
@@ -418,13 +432,7 @@
     ]
   },
   "general": {
-    "_keywords": [
-      "billing",
-      "spending cap",
-      "ai studio",
-      "image generation",
-      "provider error"
-    ],
+    "_keywords": [],
     "_description": "Universal IIFE structure and return value rules",
     "rules": [
       {
@@ -453,15 +461,6 @@
         "error": "diag error entry",
         "note": "A script consisting only of a comment performs no work and provides no diagnostics, so it appears to fail with no meaningful output. Always emit a full, self-contained script with an undo group and a guard that the active item is a CompItem.",
         "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "separate-provider-billing-errors",
-        "title": "Do not treat provider billing errors as script bugs",
-        "wrong": "The report is a provider billing or spending-cap failure, not an After Effects script generation error.",
-        "right": "Classify billing, quota, authentication, and spending-cap errors separately from code-fix rules. Do not generate ExtendScript corrections for them.",
-        "error": "exceeded its monthly spending cap",
-        "note": "If the error mentions billing, quota, spending cap, API key, authentication, or provider limits, mark it as provider configuration and exclude it from AE script repair logic.",
-        "source": "admin-approved:2026-06-13"
       }
     ],
     "_always_inject": true
