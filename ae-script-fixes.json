@@ -1,7 +1,7 @@
 {
   "_comment": "CompSmith AE script error knowledge base. Categories are injected selectively based on the user request keywords. Add new entries after reproducing and fixing the error in AE.",
   "_updated": "2026-06",
-  "_version": 21,
+  "_version": 22,
   "_categories": [
     "colors",
     "shape_layers",
@@ -187,7 +187,16 @@
       "transform",
       "move",
       "animate",
-      "keyframe"
+      "keyframe",
+      "setTemporalEaseAtKey",
+      "KeyframeEase",
+      "Scale",
+      "Position",
+      "ease array",
+      "Value array does not have 3 elements",
+      "parameter 2",
+      "transform easing",
+      "keyframes"
     ],
     "_description": "Transform group property access rules",
     "rules": [
@@ -199,6 +208,15 @@
         "error": "TypeError if transform group is null (e.g. on certain effect layers).",
         "note": "Never chain .property() calls without null checks between them.",
         "source": "system-prompt-observed"
+      },
+      {
+        "id": "temporal-ease-array-dimensions",
+        "title": "Match setTemporalEaseAtKey ease array length to AE property value dimensions",
+        "wrong": "For Scale or Position, guessing the ease array length from the visible UI dimensions, e.g. sc.setTemporalEaseAtKey(1, [eIn, eIn], [eOut, eOut]); or using [eIn] for all animated properties.",
+        "right": "Build the ease arrays from the animated property's actual value array length. Example: function easeArr(prop,e){var v=prop.value;var n=(v instanceof Array)?v.length:1;var a=[];for(var i=0;i<n;i++)a.push(e);return a;} sc.setTemporalEaseAtKey(1, easeArr(sc,eIn), easeArr(sc,eOut)); For AE Scale this is usually 3 values [x,y,z], even on a 2D layer.",
+        "error": "Unable to call \"setTemporalEaseAtKey\" because of parameter 2. Value array does not have 3 elements.",
+        "note": "After Effects expects one KeyframeEase object per property dimension. Do not assume Scale is 2D; Transform Scale commonly has 3 components. For scalar properties like Opacity or Rotation, use one ease object. For arrays, use prop.value.length.",
+        "source": "user-added:2026-06-13"
       }
     ]
   },
