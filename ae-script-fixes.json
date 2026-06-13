@@ -10,8 +10,7 @@
     "effects",
     "null_guards",
     "output_format",
-    "general",
-    "footage"
+    "general"
   ],
   "colors": {
     "_keywords": [
@@ -235,7 +234,11 @@
       "gradient",
       "ramp effect",
       "color fill",
-      "addproperty effect"
+      "addproperty effect",
+      "ramp",
+      "sky",
+      "background color",
+      "sunset"
     ],
     "_description": "Effect property access rules",
     "rules": [
@@ -274,6 +277,15 @@
         "error": "After Effects error: Can not add a property with name Ã",
         "note": "The Gradient Ramp effect's internal match name is \"ADBE Ramp\", not \"ADBE Gradient Ramp\"; addProperty must receive the exact match name or it throws. Always verify match names against the AE match name reference rather than guessing from the UI display name.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "gradient-ramp-match-name",
+        "title": "Use the correct match name 'ADBE Ramp' for the Gradient Ramp effect",
+        "wrong": "var ramp = fx.addProperty(\"ADBE Gradient Ramp\");",
+        "right": "var ramp = fx.addProperty(\"ADBE Ramp\");",
+        "error": "After Effects error: Can not add a property with name “ADBE Gradient Ramp” to this PropertyGroup.",
+        "note": "The internal match name for the Gradient Ramp effect is 'ADBE Ramp', not 'ADBE Gradient Ramp'. Adding effects by addProperty requires the exact match name; the display name does not work. The same applies to its sub-properties (e.g. 'ADBE Ramp-0001' for Start of Ramp), so prefer the display names like 'Start of Ramp'/'Start Color' or the verified match names.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
@@ -419,27 +431,5 @@
       }
     ],
     "_always_inject": true
-  },
-  "footage": {
-    "_keywords": [
-      "image gen",
-      "generated image",
-      "save image",
-      "write file",
-      "ig-history",
-      "import generated"
-    ],
-    "_description": "footage",
-    "rules": [
-      {
-        "id": "writable-image-output-folder",
-        "title": "Verify and create a writable output folder before writing generated images to disk",
-        "wrong": "var folder = new Folder(\"C:/Users/info/AppData/Roaming/Adobe/CEP/extensions/com.compsmith/ig-history\");\nvar f = new File(folder.fsName + \"/gen.png\");\nf.open(\"w\");\nf.write(imageData);\nf.close();",
-        "right": "var folder = new Folder(Folder.userData.fsName + \"/com.compsmith/ig-history\");\nif (!folder.exists) folder.create();\nvar f = new File(folder.fsName + \"/gen_\" + (new Date()).getTime() + \".png\");\nif (!f.open(\"w\")) { alert(\"Cannot write to: \" + folder.fsName); }\nelse {\n  f.encoding = \"BINARY\";\n  f.write(imageData);\n  f.close();\n}",
-        "error": "Could not write the generated image to disk. Check that the extension folder is writable.",
-        "note": "CEP extension install folders are often read-only (especially under Program Files or a managed AppData path); write generated assets to Folder.userData or Folder.temp and always call folder.create() plus check the File.open() return value. In ES3 there is no try/finally guarantee, so check open() boolean and set encoding=\"BINARY\" before writing image bytes.",
-        "source": "admin-approved:2026-06-13"
-      }
-    ]
   }
 }
