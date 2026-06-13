@@ -1,7 +1,7 @@
 {
   "_comment": "CompSmith AE script error knowledge base. Categories are injected selectively based on the user request keywords. Add new entries after reproducing and fixing the error in AE.",
   "_updated": "2026-06",
-  "_version": 24,
+  "_version": 25,
   "_categories": [
     "colors",
     "shape_layers",
@@ -310,7 +310,11 @@
       "current comp",
       "open a comp",
       "openinviewer",
-      "no active composition"
+      "no active composition",
+      "lower third",
+      "open comp",
+      "uhd composition",
+      "16:9"
     ],
     "_description": "General null-guard patterns for AE property access",
     "rules": [
@@ -340,6 +344,15 @@
         "error": "Open a comp first.",
         "note": "app.project.activeItem is null when no comp is open and can be a FolderItem/FootageItem when a non-comp item is selected in the Project panel; always check `instanceof CompItem` before accessing comp-specific members like .layers.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "no-activeitem-fallback-create-comp",
+        "title": "Don't rely solely on app.project.activeItem; fall back to a matching comp or create one",
+        "wrong": "var comp=app.project.activeItem;\nif(!comp || !(comp instanceof CompItem)) {\n  return JSON.stringify({success:false,message:\"No active composition. Please open or select a 16:9 UHD composition first.\"});\n}",
+        "right": "function findOrCreateComp(){\n  var c=app.project.activeItem;\n  if(c && c instanceof CompItem) return c;\n  for(var i=1;i<=app.project.numItems;i++){\n    var it=app.project.item(i);\n    if(it instanceof CompItem) return it;\n  }\n  // create a 16:9 UHD comp as a last resort\n  return app.project.items.addComp(\"Lower Third\",3840,2160,1.0,10,30);\n}\nvar comp=findOrCreateComp();",
+        "error": "No active composition. Please open or select a 16:9 UHD composition first, then run the script.",
+        "note": "app.project.activeItem is null when no comp is selected/open in the timeline (e.g. only the Project panel is focused), so a script that hard-fails there is fragile. Search app.project.item(i) for an existing CompItem and, if none exists, create one with app.project.items.addComp() so the script runs unattended.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
