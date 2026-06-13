@@ -234,12 +234,7 @@
       "gradient",
       "ramp effect",
       "color fill",
-      "addproperty effect",
-      "fill effect",
-      "fill color",
-      "silhouette",
-      "tint",
-      "color fill effect"
+      "addproperty effect"
     ],
     "_description": "Effect property access rules",
     "rules": [
@@ -278,15 +273,6 @@
         "error": "After Effects error: Can not add a property with name Ã",
         "note": "The Gradient Ramp effect's internal match name is \"ADBE Ramp\", not \"ADBE Gradient Ramp\"; addProperty must receive the exact match name or it throws. Always verify match names against the AE match name reference rather than guessing from the UI display name.",
         "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "fill-effect-color-value-3d",
-        "title": "Set ADBE Fill color with 4-channel RGBA and target the correct color property, not Opacity for expressions",
-        "wrong": "var colProp = fillEff.property(\"ADBE Fill-0002\");\ncolProp.setValue([0,0,0]);\nvar opProp = fillEff.property(\"ADBE Fill-0007\");\nopProp.expression = '...';",
-        "right": "var colProp = fillEff.property(\"ADBE Fill-0002\"); // Color\ncolProp.setValue([0,0,0,1]); // RGBA, 4 channels\n// Opacity on Fill is ADBE Fill-0006 (a real Slider that accepts expressions)\nvar opProp = fillEff.property(\"ADBE Fill-0006\");\nif (opProp && opProp.canSetExpression) opProp.expression = '...';",
-        "error": "After Effects error: Can not set expression or expressionEnabled on this property.",
-        "note": "The Fill effect's Opacity match name is ADBE Fill-0006, not -0007; using the wrong match name (or a group/non-animatable property) returns a property that cannot hold an expression. Always guard with opProp.canSetExpression before assigning, and set Fill Color as a 4-value RGBA array.",
-        "source": "admin-approved:2026-06-13"
       }
     ]
   },
@@ -308,7 +294,11 @@
       "current comp",
       "open a comp",
       "openinviewer",
-      "no active composition"
+      "no active composition",
+      "no comp open",
+      "composition",
+      "render queue",
+      "selected layers"
     ],
     "_description": "General null-guard patterns for AE property access",
     "rules": [
@@ -338,6 +328,15 @@
         "error": "Open a comp first.",
         "note": "app.project.activeItem is null when no comp is open and can be a FolderItem/FootageItem when a non-comp item is selected in the Project panel; always check `instanceof CompItem` before accessing comp-specific members like .layers.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "guard-active-comp-2",
+        "title": "Always validate app.project.activeItem is a CompItem before use",
+        "wrong": "var comp = app.project.activeItem;\nvar n = comp.numLayers;",
+        "right": "var comp = app.project.activeItem;\nif (!comp || !(comp instanceof CompItem)) {\n  return JSON.stringify({success:false, message:\"No active composition. Open or select a comp.\"});\n}\nvar n = comp.numLayers;",
+        "error": "TypeError: null is not an object",
+        "note": "app.project.activeItem returns null when no comp is open/selected, or a FootageItem/FolderItem when a non-comp item is active; accessing properties on it throws. Guard with both a null check and an instanceof CompItem check before touching comp members.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
