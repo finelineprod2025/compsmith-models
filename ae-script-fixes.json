@@ -91,7 +91,11 @@
       "vectors group",
       "nested group",
       "subgroup",
-      "group contents"
+      "group contents",
+      "polystar",
+      "roundness",
+      "adbe vector star roundness",
+      "hexagon"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -165,6 +169,15 @@
         "right": "var grp=root.addProperty(\"ADBE Vector Group\");\nvar contents=grp.property(\"ADBE Vectors Group\"); // child container of the group\nif(contents){ var poly=contents.addProperty(\"ADBE Vector Shape - Star\"); }",
         "error": "ReferenceError: Object is invalid",
         "note": "A new 'ADBE Vector Group' returns valid, but its child contents container must be fetched via property(\"ADBE Vectors Group\") before adding shapes; calling addProperty/property on an undefined or already-invalidated group reference throws 'Object is invalid'. Always null-check each intermediate group/contents reference and never reuse a reference after the object's parent has been re-added or moved.",
+        "source": "admin-approved:2026-06-13"
+      },
+      {
+        "id": "use-polystar-outer-roundness",
+        "title": "Use valid Polystar roundness properties",
+        "wrong": "The script tries to access ADBE Vector Star Roundness, which is not the correct Polystar roundness property.",
+        "right": "For Polystar or Polygon shapes, use ADBE Vector Star Outer Roundness when roundness is needed. Do not require a generic ADBE Vector Star Roundness property.",
+        "error": "Could not access Polystar Roundness property",
+        "note": "When creating polygons such as hexagons, set Type, Points, Outer Radius, and Position. Only set roundness through ADBE Vector Star Outer Roundness if that property exists; otherwise skip it safely.",
         "source": "admin-approved:2026-06-13"
       }
     ]
@@ -266,11 +279,7 @@
       "gradient",
       "ramp effect",
       "color fill",
-      "addproperty effect",
-      "adbe glow",
-      "adbe glo2",
-      "effect parade",
-      "shape layer glow"
+      "addproperty effect"
     ],
     "_description": "Effect property access rules",
     "rules": [
@@ -309,15 +318,6 @@
         "error": "After Effects error: Can not add a property with name Ã",
         "note": "The Gradient Ramp effect's internal match name is \"ADBE Ramp\", not \"ADBE Gradient Ramp\"; addProperty must receive the exact match name or it throws. Always verify match names against the AE match name reference rather than guessing from the UI display name.",
         "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "use-valid-glow-effect-matchname",
-        "title": "Use the valid Glow effect match name",
-        "wrong": "The script tries to add Glow using fxPar.addProperty(\"ADBE Glow\"), which is not a valid effect match name for adding the Glow effect.",
-        "right": "Add Glow to the layer's ADBE Effect Parade using the valid match name \"ADBE Glo2\", then guard every returned property before setting values.",
-        "error": "Can not add a property with name “ADBE Glow”",
-        "note": "When generating glow effects, use var glow = fxPar.addProperty(\"ADBE Glo2\"); never use \"ADBE Glow\". If Glow is not available, create a visual glow fallback with duplicated blurred/transparent shape layers instead of failing.",
-        "source": "admin-approved:2026-06-13"
       }
     ]
   },
