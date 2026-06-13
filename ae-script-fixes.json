@@ -234,7 +234,12 @@
       "gradient",
       "ramp effect",
       "color fill",
-      "addproperty effect"
+      "addproperty effect",
+      "fill effect",
+      "fill color",
+      "silhouette",
+      "tint",
+      "color fill effect"
     ],
     "_description": "Effect property access rules",
     "rules": [
@@ -273,6 +278,15 @@
         "error": "After Effects error: Can not add a property with name Ã",
         "note": "The Gradient Ramp effect's internal match name is \"ADBE Ramp\", not \"ADBE Gradient Ramp\"; addProperty must receive the exact match name or it throws. Always verify match names against the AE match name reference rather than guessing from the UI display name.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "fill-effect-color-value-3d",
+        "title": "Set ADBE Fill color with 4-channel RGBA and target the correct color property, not Opacity for expressions",
+        "wrong": "var colProp = fillEff.property(\"ADBE Fill-0002\");\ncolProp.setValue([0,0,0]);\nvar opProp = fillEff.property(\"ADBE Fill-0007\");\nopProp.expression = '...';",
+        "right": "var colProp = fillEff.property(\"ADBE Fill-0002\"); // Color\ncolProp.setValue([0,0,0,1]); // RGBA, 4 channels\n// Opacity on Fill is ADBE Fill-0006 (a real Slider that accepts expressions)\nvar opProp = fillEff.property(\"ADBE Fill-0006\");\nif (opProp && opProp.canSetExpression) opProp.expression = '...';",
+        "error": "After Effects error: Can not set expression or expressionEnabled on this property.",
+        "note": "The Fill effect's Opacity match name is ADBE Fill-0006, not -0007; using the wrong match name (or a group/non-animatable property) returns a property that cannot hold an expression. Always guard with opProp.canSetExpression before assigning, and set Fill Color as a 4-value RGBA array.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
@@ -294,13 +308,7 @@
       "current comp",
       "open a comp",
       "openinviewer",
-      "no active composition",
-      "property lookup",
-      "property()",
-      "effect property",
-      "transform property",
-      "nested property",
-      "matchname access"
+      "no active composition"
     ],
     "_description": "General null-guard patterns for AE property access",
     "rules": [
@@ -330,15 +338,6 @@
         "error": "Open a comp first.",
         "note": "app.project.activeItem is null when no comp is open and can be a FolderItem/FootageItem when a non-comp item is selected in the Project panel; always check `instanceof CompItem` before accessing comp-specific members like .layers.",
         "source": "admin-approved:2026-06-08"
-      },
-      {
-        "id": "guard-chained-property-lookups",
-        "title": "Null-guard each intermediate result when chaining AE property() lookups",
-        "wrong": "var val = layer.property(\"ADBE Effect Parade\").property(\"Gaussian Blur\").property(\"Blurriness\").value;",
-        "right": "var fx = layer.property(\"ADBE Effect Parade\");\nvar blur = fx ? fx.property(\"ADBE Gaussian Blur 2\") : null;\nvar prop = blur ? blur.property(\"ADBE Gaussian Blur 2-0001\") : null;\nif (prop) { var val = prop.value; }",
-        "error": "TypeError: null is not an object",
-        "note": "Each property() call can return null if the group/effect/property does not exist, and ES3 has no optional chaining, so every intermediate result must be checked before the next lookup. Prefer canonical match names (e.g. \"ADBE Gaussian Blur 2\") over display names since display names vary by locale and AE version.",
-        "source": "admin-approved:2026-06-13"
       }
     ]
   },
