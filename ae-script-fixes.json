@@ -1,7 +1,7 @@
 {
   "_comment": "CompSmith AE script error knowledge base. Categories are injected selectively based on the user request keywords. Add new entries after reproducing and fixing the error in AE.",
   "_updated": "2026-06",
-  "_version": 23,
+  "_version": 24,
   "_categories": [
     "colors",
     "shape_layers",
@@ -386,7 +386,14 @@
     ]
   },
   "general": {
-    "_keywords": [],
+    "_keywords": [
+      "json result",
+      "return value",
+      "script output",
+      "extendscript wrapper",
+      "iife",
+      "evalscript"
+    ],
     "_description": "Universal IIFE structure and return value rules",
     "rules": [
       {
@@ -415,6 +422,15 @@
         "error": "diag error entry",
         "note": "A script consisting only of a comment performs no work and provides no diagnostics, so it appears to fail with no meaningful output. Always emit a full, self-contained script with an undo group and a guard that the active item is a CompItem.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "complete-iife-and-return-json",
+        "title": "Always close the IIFE and return a JSON result string from the top level",
+        "wrong": "(function(){\n  var n=0;\n  try{\n    if(!app.project) return JSON.stringify({success:false,message:\"No project open.\n    // ...truncated, no closing braces, no return at end\n",
+        "right": "(function(){\n  try{\n    if(!app.project) return JSON.stringify({success:false,message:\"No project open.\"});\n    // ... do work ...\n    return JSON.stringify({success:true,message:\"Done.\"});\n  }catch(e){\n    return JSON.stringify({success:false,message:String(e)});\n  }\n})();",
+        "error": "Script returned no result — diagnosing…",
+        "note": "The script must be a syntactically complete IIFE: every string literal, try/catch, and brace must be closed, and the top-level function must always return a JSON string. An unterminated string literal or missing return makes ExtendScript evaluate to undefined, so the host sees no result.",
+        "source": "admin-approved:2026-06-13"
       }
     ],
     "_always_inject": true
