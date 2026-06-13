@@ -162,13 +162,7 @@
       "caption",
       "title",
       "subtitle",
-      "label",
-      "text layer",
-      "text position",
-      "source text",
-      "animator",
-      "text properties",
-      "adbe text"
+      "label"
     ],
     "_description": "Text layer property access rules",
     "rules": [
@@ -180,15 +174,6 @@
         "error": "TypeError on non-text layers or if property chain returns null.",
         "note": "Chain each property access separately with a null check.",
         "source": "system-prompt-observed"
-      },
-      {
-        "id": "text-position-via-transform",
-        "title": "Position a text layer via its Transform group, not the Text property group",
-        "wrong": "var tl = comp.layers.addText(\"Hello\");\ntl.property(\"ADBE Text Properties\").addProperty(\"ADBE Text Position\");",
-        "right": "var tl = comp.layers.addText(\"Hello\");\ntl.property(\"ADBE Transform Group\").property(\"ADBE Position\").setValue([960,540]);\n// For per-character animation use a Text Animator:\n// var anim = tl.property(\"ADBE Text Properties\").property(\"ADBE Text Animators\").addProperty(\"ADBE Text Animator\");\n// anim.property(\"ADBE Text Animator Properties\").addProperty(\"ADBE Text Position 3D\");",
-        "error": "After Effects error: Can not add a property with name “ADBE Text Position” to this PropertyGroup.",
-        "note": "A text layer's overall position lives on the layer Transform group (\"ADBE Position\"), which already exists and should be set, not added. \"ADBE Text Position\" only exists as an addable property inside a Text Animator group (\"ADBE Text Animator Properties\"), so trying to addProperty it elsewhere throws.",
-        "source": "admin-approved:2026-06-13"
       }
     ]
   },
@@ -309,7 +294,13 @@
       "current comp",
       "open a comp",
       "openinviewer",
-      "no active composition"
+      "no active composition",
+      "property lookup",
+      "property()",
+      "effect property",
+      "transform property",
+      "nested property",
+      "matchname access"
     ],
     "_description": "General null-guard patterns for AE property access",
     "rules": [
@@ -339,6 +330,15 @@
         "error": "Open a comp first.",
         "note": "app.project.activeItem is null when no comp is open and can be a FolderItem/FootageItem when a non-comp item is selected in the Project panel; always check `instanceof CompItem` before accessing comp-specific members like .layers.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "guard-chained-property-lookups",
+        "title": "Null-guard each intermediate result when chaining AE property() lookups",
+        "wrong": "var val = layer.property(\"ADBE Effect Parade\").property(\"Gaussian Blur\").property(\"Blurriness\").value;",
+        "right": "var fx = layer.property(\"ADBE Effect Parade\");\nvar blur = fx ? fx.property(\"ADBE Gaussian Blur 2\") : null;\nvar prop = blur ? blur.property(\"ADBE Gaussian Blur 2-0001\") : null;\nif (prop) { var val = prop.value; }",
+        "error": "TypeError: null is not an object",
+        "note": "Each property() call can return null if the group/effect/property does not exist, and ES3 has no optional chaining, so every intermediate result must be checked before the next lookup. Prefer canonical match names (e.g. \"ADBE Gaussian Blur 2\") over display names since display names vary by locale and AE version.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
