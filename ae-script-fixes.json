@@ -162,7 +162,13 @@
       "caption",
       "title",
       "subtitle",
-      "label"
+      "label",
+      "text layer",
+      "text position",
+      "source text",
+      "animator",
+      "text properties",
+      "adbe text"
     ],
     "_description": "Text layer property access rules",
     "rules": [
@@ -174,6 +180,15 @@
         "error": "TypeError on non-text layers or if property chain returns null.",
         "note": "Chain each property access separately with a null check.",
         "source": "system-prompt-observed"
+      },
+      {
+        "id": "text-position-via-transform",
+        "title": "Position a text layer via its Transform group, not the Text property group",
+        "wrong": "var tl = comp.layers.addText(\"Hello\");\ntl.property(\"ADBE Text Properties\").addProperty(\"ADBE Text Position\");",
+        "right": "var tl = comp.layers.addText(\"Hello\");\ntl.property(\"ADBE Transform Group\").property(\"ADBE Position\").setValue([960,540]);\n// For per-character animation use a Text Animator:\n// var anim = tl.property(\"ADBE Text Properties\").property(\"ADBE Text Animators\").addProperty(\"ADBE Text Animator\");\n// anim.property(\"ADBE Text Animator Properties\").addProperty(\"ADBE Text Position 3D\");",
+        "error": "After Effects error: Can not add a property with name “ADBE Text Position” to this PropertyGroup.",
+        "note": "A text layer's overall position lives on the layer Transform group (\"ADBE Position\"), which already exists and should be set, not added. \"ADBE Text Position\" only exists as an addable property inside a Text Animator group (\"ADBE Text Animator Properties\"), so trying to addProperty it elsewhere throws.",
+        "source": "admin-approved:2026-06-13"
       }
     ]
   },
@@ -196,13 +211,7 @@
       "Value array does not have 3 elements",
       "parameter 2",
       "transform easing",
-      "keyframes",
-      "temporal ease",
-      "settemporaleaseatkey",
-      "keyframe ease",
-      "easy ease",
-      "spatial ease",
-      "keyframe interpolation"
+      "keyframes"
     ],
     "_description": "Transform group property access rules",
     "rules": [
@@ -223,15 +232,6 @@
         "error": "Unable to call \"setTemporalEaseAtKey\" because of parameter 2. Value array does not have 3 elements.",
         "note": "After Effects expects one KeyframeEase object per property dimension. Do not assume Scale is 2D; Transform Scale commonly has 3 components. For scalar properties like Opacity or Rotation, use one ease object. For arrays, use prop.value.length.",
         "source": "user-added:2026-06-13"
-      },
-      {
-        "id": "temporal-ease-keyframe-array-length",
-        "title": "setTemporalEaseAtKey ease arrays must match the property's dimension count",
-        "wrong": "prop.setTemporalEaseAtKey(i, [new KeyframeEase(0,33)], [new KeyframeEase(0,33)]);",
-        "right": "var dims = prop.value.length || 1;\nvar inEase = [], outEase = [];\nfor (var d = 0; d < dims; d++) {\n  inEase.push(new KeyframeEase(0, 33));\n  outEase.push(new KeyframeEase(0, 33));\n}\nprop.setTemporalEaseAtKey(i, inEase, outEase);",
-        "error": "After Effects error: Unable to call “setTemporalEaseAtKey” because of parameter 2. Value array does not have 3 elements.",
-        "note": "The KeyframeEase arrays passed to setTemporalEaseAtKey must contain exactly one element per value dimension: 1 for 1D props (Opacity, Rotation), 2 for Position (XY) and Scale, and 3 for 3D Position/Scale. Build the arrays from prop.value.length (or prop.propertyValueType) rather than hardcoding a single element.",
-        "source": "admin-approved:2026-06-13"
       }
     ]
   },
