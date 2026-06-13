@@ -91,11 +91,7 @@
       "vectors group",
       "nested group",
       "subgroup",
-      "group contents",
-      "polystar",
-      "roundness",
-      "adbe vector star roundness",
-      "hexagon"
+      "group contents"
     ],
     "_description": "Shape layer creation and property access rules",
     "rules": [
@@ -169,15 +165,6 @@
         "right": "var grp=root.addProperty(\"ADBE Vector Group\");\nvar contents=grp.property(\"ADBE Vectors Group\"); // child container of the group\nif(contents){ var poly=contents.addProperty(\"ADBE Vector Shape - Star\"); }",
         "error": "ReferenceError: Object is invalid",
         "note": "A new 'ADBE Vector Group' returns valid, but its child contents container must be fetched via property(\"ADBE Vectors Group\") before adding shapes; calling addProperty/property on an undefined or already-invalidated group reference throws 'Object is invalid'. Always null-check each intermediate group/contents reference and never reuse a reference after the object's parent has been re-added or moved.",
-        "source": "admin-approved:2026-06-13"
-      },
-      {
-        "id": "use-polystar-outer-roundness",
-        "title": "Use valid Polystar roundness properties",
-        "wrong": "The script tries to access ADBE Vector Star Roundness, which is not the correct Polystar roundness property.",
-        "right": "For Polystar or Polygon shapes, use ADBE Vector Star Outer Roundness when roundness is needed. Do not require a generic ADBE Vector Star Roundness property.",
-        "error": "Could not access Polystar Roundness property",
-        "note": "When creating polygons such as hexagons, set Type, Points, Outer Radius, and Position. Only set roundness through ADBE Vector Star Outer Roundness if that property exists; otherwise skip it safely.",
         "source": "admin-approved:2026-06-13"
       }
     ]
@@ -431,7 +418,13 @@
     ]
   },
   "general": {
-    "_keywords": [],
+    "_keywords": [
+      "active composition",
+      "no active comp",
+      "open a comp",
+      "create comp",
+      "activeitem"
+    ],
     "_description": "Universal IIFE structure and return value rules",
     "rules": [
       {
@@ -460,6 +453,15 @@
         "error": "diag error entry",
         "note": "A script consisting only of a comment performs no work and provides no diagnostics, so it appears to fail with no meaningful output. Always emit a full, self-contained script with an undo group and a guard that the active item is a CompItem.",
         "source": "admin-approved:2026-06-08"
+      },
+      {
+        "id": "create-comp-when-user-asks-scene",
+        "title": "Create a comp instead of failing on scene prompts",
+        "wrong": "The script exits with a No active composition error even when the user prompt asks to create or open a new scene/composition.",
+        "right": "If the prompt requests a new scene, composition, background, animation, or visual setup, create a new comp with sensible defaults and open it. Only require an active comp when the prompt explicitly edits the current/selected comp.",
+        "error": "No active composition",
+        "note": "Before returning an active-comp error, decide whether the request is generative. For generative prompts, create a comp such as 1920x1080 or 1080x1920 based on the prompt, call comp.openInViewer(), and continue.",
+        "source": "admin-approved:2026-06-13"
       }
     ],
     "_always_inject": true
