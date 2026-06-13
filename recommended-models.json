@@ -76,6 +76,7 @@
     }
   },
   "image": {
+    "_notes": "MANUAL CURATION \u2014 this block is never overwritten by the auto-updater. Edit freely. 'default' = model selected on first launch (must match an id below). 'rank' = display order in the picker (1 = top, higher = lower). Leave gaps between ranks (10,20,30) so you can insert models later without renumbering everything. 'experimental' = shown with a warning badge.",
     "default": "google/gemini-3.1-flash-image-preview",
     "models": [
       {
@@ -89,27 +90,7 @@
           "4K"
         ],
         "pricePerImage": 0.04,
-        "experimental": true
-      },
-      {
-        "id": "google/gemini-2.5-flash-image",
-        "name": "Nano Banana (OpenRouter)",
-        "provider": "openrouter",
-        "sizes": [
-          "1K"
-        ],
-        "pricePerImage": 0.03,
-        "experimental": true
-      },
-      {
-        "id": "recraft/recraft-v3",
-        "name": "Recraft V3 (OpenRouter)",
-        "provider": "openrouter",
-        "sizes": [
-          "1K",
-          "2K"
-        ],
-        "pricePerImage": 0.04,
+        "rank": 10,
         "experimental": true
       },
       {
@@ -121,18 +102,8 @@
           "2K",
           "4K"
         ],
-        "pricePerImage": 0.04
-      },
-      {
-        "id": "gemini-3.1-flash-image",
-        "name": "Nano Banana 2",
-        "provider": "google",
-        "sizes": [
-          "1K",
-          "2K",
-          "4K"
-        ],
-        "pricePerImage": 0.04
+        "pricePerImage": 0.04,
+        "rank": 20
       },
       {
         "id": "gemini-3-pro-image-preview",
@@ -143,7 +114,8 @@
           "2K",
           "4K"
         ],
-        "pricePerImage": 0.04
+        "pricePerImage": 0.04,
+        "rank": 30
       },
       {
         "id": "gpt-image-1",
@@ -154,7 +126,43 @@
           "1536x1024",
           "1024x1536"
         ],
-        "pricePerImage": 0.04
+        "pricePerImage": 0.04,
+        "rank": 40
+      },
+      {
+        "id": "recraft/recraft-v3",
+        "name": "Recraft V3 (OpenRouter)",
+        "provider": "openrouter",
+        "sizes": [
+          "1K",
+          "2K"
+        ],
+        "pricePerImage": 0.04,
+        "rank": 50,
+        "experimental": true
+      },
+      {
+        "id": "google/gemini-2.5-flash-image",
+        "name": "Nano Banana (OpenRouter)",
+        "provider": "openrouter",
+        "sizes": [
+          "1K"
+        ],
+        "pricePerImage": 0.03,
+        "rank": 60,
+        "experimental": true
+      },
+      {
+        "id": "gemini-3.1-flash-image",
+        "name": "Nano Banana 2 (alt)",
+        "provider": "google",
+        "sizes": [
+          "1K",
+          "2K",
+          "4K"
+        ],
+        "pricePerImage": 0.04,
+        "rank": 70
       },
       {
         "id": "gemini-2.5-flash-image",
@@ -163,7 +171,8 @@
         "sizes": [
           "1K"
         ],
-        "pricePerImage": 0.03
+        "pricePerImage": 0.03,
+        "rank": 80
       },
       {
         "id": "dall-e-3",
@@ -174,7 +183,8 @@
           "1792x1024",
           "1024x1792"
         ],
-        "pricePerImage": 0.04
+        "pricePerImage": 0.04,
+        "rank": 90
       }
     ]
   },
